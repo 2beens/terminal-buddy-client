@@ -1,0 +1,7 @@
+commands:
+    - tb health - check connection
+    - tb register
+        - tb register -u username -p password
+    - tb remind
+        - tb remind "this is message" in 3 hours
+        - tb remind "this is message" at 5 PM
