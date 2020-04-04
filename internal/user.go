@@ -1,5 +1,6 @@
 package internal
 
 type User struct {
-	username string
+	Username     string
+	PasswordHash string
 }

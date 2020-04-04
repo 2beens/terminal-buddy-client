@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 
+	"github.com/2beens/term-buddy-commander/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +21,31 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("health called")
+		fmt.Println("calling health...")
+
+		client := http.Client{}
+		request, err := http.NewRequest("GET", fmt.Sprintf("%s://%s:%s/health", serverProtocol, serverAddress, serverPort), nil)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		resp, err := client.Do(request)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		//var result map[string]interface{}
+		var serverResp internal.ServerResponse
+		err = json.NewDecoder(resp.Body).Decode(&serverResp)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		if serverResp.Ok {
+			log.Println(serverResp.Message)
+		} else {
+			log.Println("error: " + serverResp.Message)
+		}
 	},
 }
 

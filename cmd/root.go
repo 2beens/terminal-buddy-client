@@ -2,30 +2,40 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 
+	"github.com/2beens/term-buddy-commander/internal"
 	homedir "github.com/mitchellh/go-homedir"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
+var settings *internal.Settings
+var loggedUser *internal.User
+
+// TODO: make configurable, via params, or some config file, or something else
+const (
+	serverProtocol   = "http"
+	serverAddress    = "localhost"
+	serverPort       = "8080"
+	settingsFilename = "term-buddy-settings"
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "term-buddy-commander",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Your terminal buddy, helping you with reminders and notes",
+	Long: `Your terminal buddy, helping you with reminders and notes
+		- write reminders with: remind
+		- write notes with: note
+	`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("in Run() of root cmd")
-		},
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("in Run() of root cmd")
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -39,14 +49,29 @@ func Execute() {
 	}
 }
 
-func AddCommand(c *cobra.Command) {
-	rootCmd.AddCommand(c)
+func SetLoggedUser(username, passwordHash string) {
+	loggedUser = &internal.User{
+		Username:     username,
+		PasswordHash: passwordHash,
+	}
+	if err := settings.StoreUserData(loggedUser); err != nil {
+		log.Errorf("failed to store user data: %s", err.Error())
+	}
 }
 
 func init() {
 	fmt.Println("in init() of root cmd")
 
+	// TODO: log to terminal for now
+	log.SetOutput(os.Stdout)
+
 	cobra.OnInitialize(initConfig)
+
+	var err error
+	settings, err = internal.NewSettings(settingsFilename)
+	if err != nil {
+		panic(err)
+	}
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,

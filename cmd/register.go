@@ -1,7 +1,14 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+	"net/url"
+
+	"github.com/2beens/term-buddy-commander/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +22,53 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("register called")
+		fmt.Printf("register called with args: %v\n", args)
+		if len(args) != 2 {
+			fmt.Println("no, no. wrong args. 1st should be username, 2nd password please")
+			return
+		}
+
+		username := args[0]
+		password := args[1]
+		passwordHash, err := HashPassword(password)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		data := url.Values{}
+		data.Set("username", username)
+		data.Add("password_hash", passwordHash)
+
+		client := http.Client{}
+		request, err := http.NewRequest(
+			"POST",
+			fmt.Sprintf("%s://%s:%s/user/register", serverProtocol, serverAddress, serverPort),
+			bytes.NewBufferString(data.Encode()),
+		)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+		resp, err := client.Do(request)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		log.Printf("server resp status: %d", resp.StatusCode)
+
+		var serverResp internal.ServerResponse
+		err = json.NewDecoder(resp.Body).Decode(&serverResp)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		if serverResp.Ok {
+			log.Println(serverResp.Message)
+			SetLoggedUser(username, passwordHash)
+		} else {
+			log.Println("error: " + serverResp.Message)
+		}
 	},
 }
 
