@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +18,13 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("remind called")
+
+		if !UserLogged() {
+			log.Warn("not logged in")
+			return
+		}
+
+		fmt.Printf("args (%d): %v", len(args), args)
 	},
 }
 

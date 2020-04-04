@@ -59,6 +59,10 @@ func SetLoggedUser(username, passwordHash string) {
 	}
 }
 
+func UserLogged() bool {
+	return loggedUser != nil
+}
+
 func init() {
 	fmt.Println("in init() of root cmd")
 
@@ -71,6 +75,11 @@ func init() {
 	settings, err = internal.NewSettings(settingsFilename)
 	if err != nil {
 		panic(err)
+	}
+
+	loggedUser, err = settings.GetUserData()
+	if err != nil {
+		log.Warn("user data empty/corrupted, please login/register")
 	}
 
 	// Here you will define your flags and configuration settings.

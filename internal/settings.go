@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 )
+
+var errorUserDataFileCorrupted = errors.New("corrupted user data file")
+var errorUserDataEmpty = errors.New("empty user data file")
 
 type Settings struct {
 	Username         string
@@ -44,6 +48,46 @@ func (s *Settings) StoreUserData(user *User) error {
 	}
 
 	return nil
+}
+
+func (s *Settings) GetUserData() (*User, error) {
+	preferencesPath, err := s.preferencesFolder()
+	if err != nil {
+		return nil, fmt.Errorf("cannot get preferences folder: %w", err)
+	}
+
+	userDataBytes, err := ioutil.ReadFile(preferencesPath + string(os.PathSeparator) + s.SettingsFileName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read settings from file: %w", err)
+	}
+
+	if len(userDataBytes) == 0 {
+		return nil, errorUserDataEmpty
+	}
+
+	userData := strings.Split(string(userDataBytes), "::")
+	if len(userData) != 2 {
+		return nil, errorUserDataFileCorrupted
+	}
+
+	return &User{
+		Username:     userData[0],
+		PasswordHash: userData[1],
+	}, nil
+}
+
+func (s *Settings) ClearUserData() error {
+	preferencesPath, err := s.preferencesFolder()
+	if err != nil {
+		return fmt.Errorf("cannot get preferences folder: %w", err)
+	}
+
+	err = os.Remove(preferencesPath + string(os.PathSeparator) + s.SettingsFileName)
+	if err != nil {
+		return fmt.Errorf("failed to delte previous settings file: %w", err)
+	}
+
+	return s.initSettings()
 }
 
 func (s *Settings) preferencesFolder() (string, error) {

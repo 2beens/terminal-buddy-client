@@ -30,10 +30,7 @@ to quickly create a Cobra application.`,
 
 		username := args[0]
 		password := args[1]
-		passwordHash, err := HashPassword(password)
-		if err != nil {
-			log.Fatalln(err)
-		}
+		passwordHash := HashPassword(password)
 
 		data := url.Values{}
 		data.Set("username", username)

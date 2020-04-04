@@ -23,6 +23,8 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("calling health...")
 
+		log.Printf("logged in: %t", UserLogged())
+
 		client := http.Client{}
 		request, err := http.NewRequest("GET", fmt.Sprintf("%s://%s:%s/health", serverProtocol, serverAddress, serverPort), nil)
 		if err != nil {
