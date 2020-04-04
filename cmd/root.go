@@ -17,10 +17,11 @@ var loggedUser *internal.User
 
 // TODO: make configurable, via params, or some config file, or something else
 const (
-	serverProtocol   = "http"
-	serverAddress    = "localhost"
-	serverPort       = "8080"
-	settingsFilename = "term-buddy-settings"
+	serverProtocol         = "http"
+	serverAddress          = "localhost"
+	serverPort             = "8080"
+	settingsFilename       = "term-buddy-settings"
+	passwordHashHeaderName = "Term-Buddy-Pass-Hash"
 )
 
 // rootCmd represents the base command when called without any subcommands
