@@ -101,7 +101,7 @@ func handleNewRemind(args []string) {
 		log.Println("not OK :(")
 	}
 	log.Println("\t- " + serverResp.Message)
-	log.Printf("\t- %v", serverResp.Data)
+	log.Printf("\t- %v", string(serverResp.DataJsonBytes))
 }
 
 func handleAll() {
@@ -127,16 +127,22 @@ func handleAll() {
 	}
 
 	log.Println("server:")
+	log.Println("\t- " + serverResp.Message)
 	if !serverResp.Ok {
 		log.Println("not OK :(")
+		return
 	}
-	log.Println("\t- " + serverResp.Message)
-	log.Printf("\t- %v", serverResp.Data)
+	log.Printf("\t- %v", string(serverResp.DataJsonBytes))
 
-	if reminders, ok := serverResp.Data.([]internal.Reminder); ok {
-		log.Printf("%v", reminders)
-	} else {
-		log.Error("cannot cast server response data to []Reminder")
+	reminders := &[]internal.Reminder{}
+	err = json.Unmarshal(serverResp.DataJsonBytes, reminders)
+	if err != nil {
+		log.Errorf("reminders unmarshal error: %s", err.Error())
+		return
+	}
+
+	for _, r := range *reminders {
+		log.Printf(" - %d: %s [%v]", r.Id, r.Message, r.DueDate)
 	}
 }
 

@@ -79,6 +79,8 @@ func handleLogin(args []string) {
 	} else {
 		log.Println("error: " + serverResp.Message)
 	}
+
+	// TODO: user is returned in serverResp.Data
 }
 
 func handleClearUserData() {
