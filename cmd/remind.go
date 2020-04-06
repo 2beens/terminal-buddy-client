@@ -118,7 +118,7 @@ func handleAll() {
 		log.Fatalln(err)
 	}
 
-	log.Printf("FIX: server resp status: %d", resp.StatusCode)
+	log.Printf("resp status: %d", resp.StatusCode)
 
 	var serverResp internal.ServerResponse
 	err = json.NewDecoder(resp.Body).Decode(&serverResp)
@@ -126,13 +126,10 @@ func handleAll() {
 		log.Fatalln(err)
 	}
 
-	log.Println("server:")
-	log.Println("\t- " + serverResp.Message)
 	if !serverResp.Ok {
-		log.Println("not OK :(")
+		log.Println("\t- " + serverResp.Message)
 		return
 	}
-	log.Printf("\t- %v", string(serverResp.DataJsonBytes))
 
 	reminders := &[]internal.Reminder{}
 	err = json.Unmarshal(serverResp.DataJsonBytes, reminders)
@@ -142,7 +139,8 @@ func handleAll() {
 	}
 
 	for _, r := range *reminders {
-		log.Printf(" - %d: %s [%v]", r.Id, r.Message, r.DueDate)
+		log.Printf(" - %d: %s", r.Id, r.Message)
+		log.Printf("\t- %v", time.Unix(r.DueDate, 0))
 	}
 }
 
