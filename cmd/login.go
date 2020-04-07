@@ -8,9 +8,7 @@ import (
 	"net/url"
 
 	"github.com/2beens/term-buddy-commander/internal"
-
 	log "github.com/sirupsen/logrus"
-
 	"github.com/spf13/cobra"
 )
 

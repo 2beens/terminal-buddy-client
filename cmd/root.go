@@ -17,9 +17,12 @@ var loggedUser *internal.User
 
 // TODO: make configurable, via params, or some config file, or something else
 const (
-	serverProtocol         = "http"
-	serverAddress          = "localhost"
-	serverPort             = "8080"
+	//serverProtocol = "http"
+	//serverAddress          = "localhost"
+	//serverPort             = "8080"
+	serverProtocol         = "https"
+	serverAddress          = "www.serjspends.de/tb"
+	serverPort             = ""
 	settingsFilename       = "term-buddy-settings"
 	passwordHashHeaderName = "Term-Buddy-Pass-Hash"
 )

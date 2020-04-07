@@ -3,10 +3,10 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/2beens/term-buddy-commander/internal"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -25,8 +25,17 @@ to quickly create a Cobra application.`,
 
 		log.Printf("logged in: %t", UserLogged())
 
+		var reqUrl string
+		if len(serverPort) > 0 {
+			reqUrl = fmt.Sprintf("%s://%s:%s/health", serverProtocol, serverAddress, serverPort)
+		} else {
+			reqUrl = fmt.Sprintf("%s://%s/health", serverProtocol, serverAddress)
+		}
+
+		log.Warnf("req url: %s", reqUrl)
+
 		client := http.Client{}
-		request, err := http.NewRequest("GET", fmt.Sprintf("%s://%s:%s/health", serverProtocol, serverAddress, serverPort), nil)
+		request, err := http.NewRequest("GET", reqUrl, nil)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -35,6 +44,9 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatalln(err)
 		}
+
+		//respBytes, _ := ioutil.ReadAll(resp.Body)
+		//log.Println(string(respBytes))
 
 		//var result map[string]interface{}
 		var serverResp internal.ServerResponse
