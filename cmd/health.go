@@ -22,16 +22,8 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("calling health...")
-
 		log.Printf("logged in: %t", UserLogged())
-
-		var reqUrl string
-		if len(serverPort) > 0 {
-			reqUrl = fmt.Sprintf("%s://%s:%s/health", serverProtocol, serverAddress, serverPort)
-		} else {
-			reqUrl = fmt.Sprintf("%s://%s/health", serverProtocol, serverAddress)
-		}
-
+		reqUrl := getRequestUrl("health")
 		log.Warnf("req url: %s", reqUrl)
 
 		client := http.Client{}

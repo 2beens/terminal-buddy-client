@@ -62,17 +62,16 @@ func handleNewRemind(args []string) {
 
 	log.Printf("due date param: %+v", dueDate)
 
+	reqUrl := getRequestUrl(fmt.Sprintf("remind/%s", loggedUser.Username))
+	log.Warnf("req url: %s", reqUrl)
+
 	data := url.Values{}
 	data.Add("message", remindMessage)
 	data.Add("due_date", strconv.FormatInt(dueDateUnixTimestamp, 10))
 	data.Add("password_hash", loggedUser.PasswordHash)
 
 	client := http.Client{}
-	request, err := http.NewRequest(
-		"POST",
-		fmt.Sprintf("%s://%s:%s/remind/%s", serverProtocol, serverAddress, serverPort, loggedUser.Username),
-		bytes.NewBufferString(data.Encode()),
-	)
+	request, err := http.NewRequest("POST", reqUrl, bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -105,9 +104,11 @@ func handleNewRemind(args []string) {
 }
 
 func handleAll() {
+	reqUrl := getRequestUrl(fmt.Sprintf("remind/%s/all", loggedUser.Username))
+	log.Warnf("req url: %s", reqUrl)
+
 	client := http.Client{}
-	url := fmt.Sprintf("%s://%s:%s/remind/%s/all", serverProtocol, serverAddress, serverPort, loggedUser.Username)
-	request, err := http.NewRequest("GET", url, nil)
+	request, err := http.NewRequest("GET", reqUrl, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -135,6 +136,11 @@ func handleAll() {
 	err = json.Unmarshal(serverResp.DataJsonBytes, reminders)
 	if err != nil {
 		log.Errorf("reminders unmarshal error: %s", err.Error())
+		return
+	}
+
+	if len(*reminders) == 0 {
+		log.Printf("no reminders yet. go on, make one")
 		return
 	}
 

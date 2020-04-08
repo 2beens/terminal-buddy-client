@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/2beens/term-buddy-commander/internal"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -32,16 +32,15 @@ to quickly create a Cobra application.`,
 		password := args[1]
 		passwordHash := HashPassword(password)
 
+		reqUrl := getRequestUrl("user/register")
+		log.Warnf("req url: %s", reqUrl)
+
 		data := url.Values{}
 		data.Set("username", username)
 		data.Add("password_hash", passwordHash)
 
 		client := http.Client{}
-		request, err := http.NewRequest(
-			"POST",
-			fmt.Sprintf("%s://%s:%s/user/register", serverProtocol, serverAddress, serverPort),
-			bytes.NewBufferString(data.Encode()),
-		)
+		request, err := http.NewRequest("POST", reqUrl, bytes.NewBufferString(data.Encode()))
 		if err != nil {
 			log.Fatalln(err)
 		}

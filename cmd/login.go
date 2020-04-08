@@ -43,16 +43,15 @@ func handleLogin(args []string) {
 	password := args[1]
 	passwordHash := HashPassword(password)
 
+	reqUrl := getRequestUrl("user/login")
+	log.Warnf("req url: %s", reqUrl)
+
 	data := url.Values{}
 	data.Add("username", username)
 	data.Add("password_hash", passwordHash)
 
 	client := http.Client{}
-	request, err := http.NewRequest(
-		"POST",
-		fmt.Sprintf("%s://%s:%s/user/login", serverProtocol, serverAddress, serverPort),
-		bytes.NewBufferString(data.Encode()),
-	)
+	request, err := http.NewRequest("POST", reqUrl, bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		log.Fatalln(err)
 	}

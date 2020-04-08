@@ -42,6 +42,13 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+func getRequestUrl(path string) string {
+	if len(serverPort) > 0 {
+		return fmt.Sprintf("%s://%s:%s/$s", serverProtocol, serverAddress, serverPort, path)
+	}
+	return fmt.Sprintf("%s://%s/%s", serverProtocol, serverAddress, path)
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
