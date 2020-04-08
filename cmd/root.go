@@ -15,9 +15,10 @@ var cfgFile string
 var settings *internal.Settings
 var loggedUser *internal.User
 
+var useLocalServer = false
+
 // TODO: make configurable, via params, or some config file, or something else
 const (
-	useLocalServer      = false
 	serverLocalProtocol = "http"
 	serverLocalAddress  = "localhost"
 	serverLocalPort     = "8080"
@@ -92,31 +93,23 @@ func init() {
 
 	cobra.OnInitialize(initConfig)
 
-	var err error
-	settings, err = internal.NewSettings(GetServerSettings(), settingsFilename)
-	if err != nil {
-		panic(err)
-	}
-
-	loggedUser, err = settings.GetUserData()
-	if err != nil {
-		log.Warn("user data empty/corrupted, please login/register")
-	}
-
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.term-buddy-commander.yaml)")
+	rootCmd.PersistentFlags().BoolVar(&useLocalServer, "ls", false, "Set to 'true' to connect to localhost server")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
+	// Cobra also supports local flags, which will only run when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	fmt.Println("in initConfig() of root cmd")
+
+	if useLocalServer {
+		log.Warn("using local server")
+	}
 
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -139,5 +132,16 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+
+	var err error
+	settings, err = internal.NewSettings(GetServerSettings(), settingsFilename)
+	if err != nil {
+		panic(err)
+	}
+
+	loggedUser, err = settings.GetUserData()
+	if err != nil {
+		log.Warn("user data empty/corrupted, please login/register")
 	}
 }

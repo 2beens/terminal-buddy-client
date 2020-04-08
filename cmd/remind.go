@@ -42,6 +42,10 @@ to quickly create a Cobra application.`,
 		// TODO: do this in a smarter way :)
 		if len(args) == 3 && strings.ToLower(args[1]) == "in" {
 			handleNewRemind(args)
+		} else if len(args) == 3 && strings.ToLower(args[1]) == "at" {
+			// TODO: support for specific time
+			// 		e.g. remind "cheeki breeki" at 5pm
+			log.Warn("not supported yet, sorry")
 		}
 	},
 }
@@ -95,12 +99,15 @@ func handleNewRemind(args []string) {
 		return
 	}
 
+	// TODO: response from server is not logged, but displayed to user
 	log.Println("server:")
 	if !serverResp.Ok {
 		log.Println("not OK :(")
 	}
 	log.Println("\t- " + serverResp.Message)
-	log.Printf("\t- %v", string(serverResp.DataJsonBytes))
+	if len(serverResp.DataJsonBytes) > 0 {
+		log.Printf("\t- %v", string(serverResp.DataJsonBytes))
+	}
 }
 
 func handleAll() {

@@ -37,13 +37,13 @@ to quickly create a Cobra application.`,
 			log.Fatalln(err)
 		}
 
-		//var result map[string]interface{}
 		var serverResp internal.ServerResponse
 		err = json.NewDecoder(resp.Body).Decode(&serverResp)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
+		// TODO: response from server is not logged, but displayed to user
 		if serverResp.Ok {
 			log.Println(serverResp.Message)
 		} else {
@@ -54,16 +54,5 @@ to quickly create a Cobra application.`,
 
 func init() {
 	fmt.Println("in init() of health cmd")
-
 	rootCmd.AddCommand(healthCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// healthCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// healthCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
