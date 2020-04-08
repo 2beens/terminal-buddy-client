@@ -11,14 +11,23 @@ import (
 var errorUserDataFileCorrupted = errors.New("corrupted user data file")
 var errorUserDataEmpty = errors.New("empty user data file")
 
+type ServerSettings struct {
+	ServerProtocol string
+	ServerAddress  string
+	ServerPort     string
+}
+
 type Settings struct {
+	ServerSettings *ServerSettings
+
 	Username         string
 	PasswordHash     string
 	SettingsFileName string
 }
 
-func NewSettings(settingsFileName string) (*Settings, error) {
+func NewSettings(serverSettings *ServerSettings, settingsFileName string) (*Settings, error) {
 	s := &Settings{
+		ServerSettings:   serverSettings,
 		SettingsFileName: settingsFileName,
 	}
 
@@ -27,6 +36,13 @@ func NewSettings(settingsFileName string) (*Settings, error) {
 	}
 
 	return s, nil
+}
+
+func (s *Settings) GetRequestUrl(path string) string {
+	if len(s.ServerSettings.ServerPort) > 0 {
+		return fmt.Sprintf("%s://%s:%s/%s", s.ServerSettings.ServerProtocol, s.ServerSettings.ServerAddress, s.ServerSettings.ServerPort, path)
+	}
+	return fmt.Sprintf("%s://%s/%s", s.ServerSettings.ServerProtocol, s.ServerSettings.ServerAddress, path)
 }
 
 func (s *Settings) StoreUserData(user *User) error {

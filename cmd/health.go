@@ -23,7 +23,7 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("calling health...")
 		log.Printf("logged in: %t", UserLogged())
-		reqUrl := getRequestUrl("health")
+		reqUrl := settings.GetRequestUrl("health")
 		log.Warnf("req url: %s", reqUrl)
 
 		client := http.Client{}
@@ -36,9 +36,6 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatalln(err)
 		}
-
-		//respBytes, _ := ioutil.ReadAll(resp.Body)
-		//log.Println(string(respBytes))
 
 		//var result map[string]interface{}
 		var serverResp internal.ServerResponse

@@ -43,7 +43,7 @@ func handleLogin(args []string) {
 	password := args[1]
 	passwordHash := HashPassword(password)
 
-	reqUrl := getRequestUrl("user/login")
+	reqUrl := settings.GetRequestUrl("user/login")
 	log.Warnf("req url: %s", reqUrl)
 
 	data := url.Values{}

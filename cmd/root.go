@@ -17,12 +17,14 @@ var loggedUser *internal.User
 
 // TODO: make configurable, via params, or some config file, or something else
 const (
-	//serverProtocol = "http"
-	//serverAddress          = "localhost"
-	//serverPort             = "8080"
-	serverProtocol         = "https"
-	serverAddress          = "www.serjspends.de/tb"
-	serverPort             = ""
+	useLocalServer      = false
+	serverLocalProtocol = "http"
+	serverLocalAddress  = "localhost"
+	serverLocalPort     = "8080"
+	serverProtocol      = "https"
+	serverAddress       = "www.serjspends.de/tb"
+	serverPort          = ""
+
 	settingsFilename       = "term-buddy-settings"
 	passwordHashHeaderName = "Term-Buddy-Pass-Hash"
 )
@@ -40,13 +42,6 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("in Run() of root cmd")
 	},
-}
-
-func getRequestUrl(path string) string {
-	if len(serverPort) > 0 {
-		return fmt.Sprintf("%s://%s:%s/$s", serverProtocol, serverAddress, serverPort, path)
-	}
-	return fmt.Sprintf("%s://%s/%s", serverProtocol, serverAddress, path)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -74,6 +69,21 @@ func UserLogged() bool {
 	return loggedUser != nil
 }
 
+func GetServerSettings() *internal.ServerSettings {
+	if useLocalServer {
+		return &internal.ServerSettings{
+			ServerProtocol: serverLocalProtocol,
+			ServerAddress:  serverLocalAddress,
+			ServerPort:     serverLocalPort,
+		}
+	}
+	return &internal.ServerSettings{
+		ServerProtocol: serverProtocol,
+		ServerAddress:  serverAddress,
+		ServerPort:     serverPort,
+	}
+}
+
 func init() {
 	fmt.Println("in init() of root cmd")
 
@@ -83,7 +93,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	var err error
-	settings, err = internal.NewSettings(settingsFilename)
+	settings, err = internal.NewSettings(GetServerSettings(), settingsFilename)
 	if err != nil {
 		panic(err)
 	}

@@ -62,7 +62,7 @@ func handleNewRemind(args []string) {
 
 	log.Printf("due date param: %+v", dueDate)
 
-	reqUrl := getRequestUrl(fmt.Sprintf("remind/%s", loggedUser.Username))
+	reqUrl := settings.GetRequestUrl(fmt.Sprintf("remind/%s", loggedUser.Username))
 	log.Warnf("req url: %s", reqUrl)
 
 	data := url.Values{}
@@ -104,7 +104,7 @@ func handleNewRemind(args []string) {
 }
 
 func handleAll() {
-	reqUrl := getRequestUrl(fmt.Sprintf("remind/%s/all", loggedUser.Username))
+	reqUrl := settings.GetRequestUrl(fmt.Sprintf("remind/%s/all", loggedUser.Username))
 	log.Warnf("req url: %s", reqUrl)
 
 	client := http.Client{}

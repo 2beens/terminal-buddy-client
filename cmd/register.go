@@ -32,7 +32,7 @@ to quickly create a Cobra application.`,
 		password := args[1]
 		passwordHash := HashPassword(password)
 
-		reqUrl := getRequestUrl("user/register")
+		reqUrl := settings.GetRequestUrl("user/register")
 		log.Warnf("req url: %s", reqUrl)
 
 		data := url.Values{}
