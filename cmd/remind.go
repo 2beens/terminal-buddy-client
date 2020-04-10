@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +14,11 @@ import (
 	"github.com/2beens/term-buddy-commander/internal"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+)
+
+var (
+	regexpRemindInCommand = regexp.MustCompile(`^(.+)\sin\s(\w+)$`)
+	regexpRemindAtCommand = regexp.MustCompile(`^(.+)\sat\s(\w+)$`)
 )
 
 var remindCmd = &cobra.Command{
@@ -32,29 +38,48 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		fmt.Printf("args (%d): %v\n", len(args), args)
+		if len(args) == 0 {
+			log.Error("no arguments specified")
+			return
+		}
 
+		// TODO: use subcommands instead
 		if len(args) == 1 && args[0] == "all" {
 			handleAll()
 			return
 		}
 
-		// TODO: do this in a smarter way :)
-		if len(args) == 3 && strings.ToLower(args[1]) == "in" {
-			handleNewRemind(args)
-		} else if len(args) == 3 && strings.ToLower(args[1]) == "at" {
+		// TODO: use subcommands instead
+		if len(args) == 2 && args[0] == "all" && args[1] == "clear" {
+			handleClearAll()
+			return
+		}
+
+		command := strings.Join(args, " ")
+		log.Printf("args (%d): %v\n", len(args), args)
+		log.Printf("command: %s", command)
+
+		remindInMatched := regexpRemindInCommand.MatchString(command)
+		remindAtMatched := regexpRemindAtCommand.MatchString(command)
+		if !remindInMatched && !remindAtMatched {
+			log.Error("wrong remind message format: " + command)
+			return
+		}
+
+		if remindInMatched {
+			groups := regexpRemindInCommand.FindStringSubmatch(command)
+			handleNewRemind(groups[1], groups[2])
+		} else {
 			// TODO: support for specific time
 			// 		e.g. remind "cheeki breeki" at 5pm
-			log.Warn("not supported yet, sorry")
+			log.Warn("'at' not supported yet, sorry")
 		}
 	},
 }
 
 // remind "kick the dog" in "3 hours"
-func handleNewRemind(args []string) {
-	remindMessage := args[0]
-	// such as "300ms", "-1.5h" or "2h45m".
-	durationInstructions := args[2]
+// duration instructions, such as "300ms", "-1.5h" or "2h45m".
+func handleNewRemind(remindMessage, durationInstructions string) {
 	duration, err := time.ParseDuration(durationInstructions)
 	if err != nil {
 		log.Errorf("provided duration is invalid: %s", durationInstructions)
@@ -157,9 +182,12 @@ func handleAll() {
 	}
 }
 
+func handleClearAll() {
+	log.Warn("not supported yet")
+	return
+}
+
 func init() {
 	fmt.Println("in init() of remind cmd")
-
 	rootCmd.AddCommand(remindCmd)
-
 }
